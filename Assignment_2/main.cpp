@@ -2,11 +2,28 @@
 //
 
 #include <iostream>
+#include <string>
+#include <fstream>
+#include "Item.h"
+#include "Account.h"
+#include "LinkedAccounts.h"
+#include "LinkedItems.h"
+#include "Control.h"
+using namespace std;
+
+string customers_file = "customers.txt";
+string items_file = "items.txt";
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	Control control(customers_file,items_file);
+	control.__init__();
+	//c_list->display_accounts();
+	//i_list->display_items();
 }
+
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

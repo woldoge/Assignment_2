@@ -151,7 +151,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Assignment_2.cpp" />
+    <ClCompile Include="Account.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Control.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="LinkedAccounts.cpp" />
+    <ClCompile Include="LinkedItems.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Account.h" />
+    <ClInclude Include="Control.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="LinkedAccounts.h" />
+    <ClInclude Include="LinkedItems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
