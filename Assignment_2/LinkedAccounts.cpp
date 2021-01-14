@@ -8,7 +8,7 @@ void LinkedAccounts ::append(Account* data)
 {
 	if (this->head == NULL) { // append the node of data to the head when there is no head in the list
 		this->head = new account_node(data);
-return;
+		return;
 	}
 	account_node *currentPtr = this->head;
 	while (currentPtr->getNext() != NULL) // Scanning through the list from head to tail
@@ -100,6 +100,9 @@ void LinkedAccounts::display_accounts()
 		cout << endl << endl;
 		currentPtr = currentPtr->getNext();
 	}
+	cout << "(*) [VIP]: VIP account" << endl;
+	cout << "    [REG]: Regular account" << endl;
+	cout << "    [GUE]: Guess account" << endl;
 }
 
 bool LinkedAccounts::ID_is_in_list(string ID)

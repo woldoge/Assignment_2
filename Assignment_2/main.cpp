@@ -19,8 +19,6 @@ int main()
 {
 	Control control(customers_file,items_file);
 	control.__init__();
-	//c_list->display_accounts();
-	//i_list->display_items();
 }
 
 

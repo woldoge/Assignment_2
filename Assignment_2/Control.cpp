@@ -139,23 +139,73 @@ bool input_is_number(string input) {
 	}
 	return true;
 }
+
+void Control::access_account() {
+	string _input;
+	cout << "- DIO: Choose your account by typing its ID." << endl << endl;
+	while (true) {
+		cout << "1. Show list of all accounts" << endl;
+		cout << "0. Go back" << endl;
+		cout << "Your Account ID (Cxxx): ";
+		_input = take_user_input();
+		if (_input == "exit" || _input == "Exit") { // When the command is to exit
+			exit();
+			return;
+		}
+		if (_input == "1") {
+			this->c_list->display_accounts();
+			cout << endl;
+			continue;
+		}
+		if (_input == "0") {
+			return;
+		}
+		
+		if (!input_is_accountID(_input)) { // Check if input is a number
+			cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
+			continue;
+		}
+		if (!c_list->ID_is_in_list(_input)) {
+			cout << "- DIO: WRYYYYY! An account with an ID like this is not here." << endl << endl;
+			continue;
+		}
+		current_account = c_list->get_by_ID(_input);
+		cout << endl;
+		return;
+	}
+}
 void Control::menu() {
 	cout << "Enter an option (number) below as your command." << endl;
-	cout << "1. Add a new item, update or delete an existing item" << endl;
-	cout << "2. Add new customer or update an existing customer" << endl;
-	cout << "3. Promote an existing customer" << endl;
-	cout << "4. Rent an item" << endl;
-	cout << "5. Return an item" << endl;
-	cout << "6. Display all items" << endl;
-	cout << "7. Display out - of - stock items" << endl;
-	cout << "8. Display all customers" << endl;
-	cout << "9. Display group of customers" << endl;
-	cout << "10. Search items or customers" << endl;
-	cout << "Exit. Save the data and exit the program" << endl;
-	cout << "Your choice: ";
+	if (current_account == NULL && current_item == NULL) {
+		cout << "1. Access an account (for update, rent, return, promote)" << endl;
+		cout << "2. Add a new customer" << endl;
+		cout << "3. Access an item (for update, delete, add stock)" << endl;
+		cout << "4. Display all items" << endl;
+		cout << "5. Display out - of - stock items" << endl;
+		cout << "6. Display all customers" << endl;
+		cout << "7. Display group of customers" << endl;
+		cout << "8. Add a new item" << endl;
+	}
+	if (current_account != NULL) {
+		cout << "0. Log out this acount" << endl;
+		cout << "1. Update account info" << endl;
+		cout << "2. Rent an item" << endl;
+		cout << "3. Return an item" << endl;
+		cout << "4. Display all items" << endl;
+		cout << "5. Display out - of - stock items" << endl;
+		cout << "6. Promote this account" << endl;
+	}
+	if (current_item != NULL) {
+		cout << "0. Go back" << endl;
+		cout << "1. Update this item atributes" << endl;
+		cout << "2. Delete this item" << endl;
+		cout << "3. Add stock" << endl;
+		cout << "4. Display all items" << endl;
+		cout << "5. Display out - of - stock items" << endl;
+	}
+	
 	string input;
-	cin >> input; // Take input from console
-	cout << endl;
+	input = take_user_input();
 	if (input == "exit" || input == "Exit") { // When the command is to exit
 		exit();
 		return;
@@ -165,42 +215,56 @@ void Control::menu() {
 		cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
 		return;
 	}
+	if (!this->is_running) { // Exit the program when is_running is false
+		return;
+	}
 	
 	switch (stoi(input)) // Initiate input choice
 	{
+	case 0:
+		if (current_account != NULL) {
+			log_out(current_account);
+			break;
+		}
 	case 1:
-		cout << "Under maintainance" << endl << endl;
+		if (current_account == NULL && current_item == NULL) {
+			access_account();
+		}
+		if (current_account != NULL) {
+			update_account_wizard();
+		}
+		if (current_item != NULL) {
+			update_item_wizard();
+		}
 		break;
 	case 2:
 		cout << "Under maintainance" << endl << endl;
 		break;
 	case 3:
-		cout << "Under maintainance" << endl << endl;
-		break;
+		if (current_account == NULL && current_item == NULL) {
+			access_item();
+			break;
+		}
+
 	case 4:
-		borrow_wizard();
+		i_list->display_items();
+		cout << endl;
 		break;
 	case 5:
-		cout << "Under maintainance" << endl << endl;
+		cout << "maintainace" << endl;
 		break;
 	case 6:
-		i_list->display_items();
+		if (current_account == NULL && current_item == NULL) {
+			this->c_list->display_accounts();
+			break;
+		}
+		cout << "maintainace" << endl;
 		break;
 	case 7:
 		cout << "Under maintainance" << endl << endl;
 		break;
 	case 8:
-		c_list->display_accounts();
-		cout << "(*) [VIP]: VIP account" << endl;
-		cout << "    [REG]: Regular account" << endl;
-		cout << "    [GUE]: Guess account" << endl;
-		cout << endl;
-		break;
-	case 9:
-		cout << "Under maintainance" << endl << endl;
-		break;
-	case 10: 
-		cout << "Under maintainance" << endl << endl;
+		cout << "Maintainance" << endl << endl;
 		break;
 	default:
 		cout << "- DIO: WRYYYYY! Invalid input number!" << endl << endl;
@@ -208,7 +272,7 @@ void Control::menu() {
 	}
 }
 
-bool input_is_accountID(string input) {
+bool Control::input_is_accountID(string input) {
 	if (input.length() != 4) { // Check if input has 4 characters
 		return false;
 	}
@@ -220,7 +284,139 @@ bool input_is_accountID(string input) {
 	}
 	return true;
 }
-bool input_is_itemID(string input) {
+void Control::log_out(Account* account)
+{
+	this->current_account = NULL;
+}
+void Control::log_out(Item* item)
+{
+	this->current_item = NULL;
+}
+void Control::update_account_wizard()
+{
+	string _input;
+	cout << "Oh! You want to update your account infomation?" << endl;
+	cout << "What attribute you want to update?" << endl;
+	cout << "0. Go back" << endl;
+	cout << "1. Name" << endl;
+	cout << "2. Phone" << endl;
+	cout << "3. Address" << endl;
+	cout << "What you enter should be '[option]-[what you want this to become]'" << endl;
+	cout << "For xample: 1-Jotaro Kujo" << endl << endl;
+	while (true) {
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "exit" || _input == "Exit") { // When the command is to exit
+			exit();
+			return;
+		}
+		if (_input == "0" || _input == "Exit") { // When the command is to exit
+			return;
+		}
+		if (_input.find(',') != string::npos) { // When ',' is in the input
+			cout << "DIO: Yare yare daze! Your input must not have ',' " << endl;
+			continue;
+		}
+		if (_input.length() > 2 && _input[0] == '1' &&_input[1] == '-') { // 1. set name
+			this->current_account->set_name(_input.substr(2));
+			cout << "DIO: Your account name has been set!" << endl << endl;
+			return;
+		}
+		if (_input.length() > 2 && _input[0] == '2' &&_input[1] == '-') { // 1. set phone
+			this->current_account->set_phone(_input.substr(2));
+			cout << "DIO: Your account phone has been set!" << endl << endl;
+			return;
+		}
+		if (_input.length() > 2 && _input[0] == '3' &&_input[1] == '-') { // 1. set address
+			this->current_account->set_address(_input.substr(2));
+			cout << "DIO: Your account address has been set!" << endl << endl;
+			return;
+		}
+	}
+	cout << "- DIO: WRYYYYY! What you typed is not valid" << endl << endl;
+}
+void Control::update_item_wizard()
+{
+	string _input;
+	cout << "Oh! You want to update your account infomation?" << endl;
+	cout << "What attribute you want to update?" << endl;
+	cout << "0. Go back" << endl;
+	cout << "1. Title" << endl;
+	cout << "2. Loan type ('2-day' or '1-week')" << endl;
+	cout << "3. Rental fee" << endl;
+	cout << "What you enter should be '[option]-[what you want this to become]'" << endl;
+	cout << "For xample: 1-JoJo's Bizarre Adventure: Golden Wind" << endl << endl;
+	while (true) {
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "exit" || _input == "Exit") { // When the command is to exit
+			exit();
+			return;
+		}
+		if (_input == "0" || _input == "Exit") { // When the command is to exit
+			return;
+		}
+		if (_input.find(',') != string::npos) { // When ',' is in the input
+			cout << "DIO: Yare yare daze! Your input must not have ',' " << endl;
+			continue;
+		}
+		if (_input.length() > 2 && _input[0] == '1' &&_input[1] == '-') { // 1. set title
+			this->current_item->set_title(_input.substr(2));
+			cout << "DIO: Your item title has been set!" << endl << endl;
+			return;
+		}
+		if (_input.length() > 2 && _input[0] == '2' &&_input[1] == '-') { // 1. set loan type
+			if (_input.substr(2) == "2-day" || _input.substr(2) == "1-week") { // check if user input is 2-day or 1-week 
+				this->current_item->set_loan_type(_input.substr(2));
+				cout << "DIO: Your item loan type been set!" << endl << endl;
+				return;
+				cout << "DIO: Loan type should be only 2-day or 1-week" << endl<< endl;
+			}
+		}
+		if (_input.length() > 2 && _input[0] == '3' &&_input[1] == '-') { // 1. set rental fee
+			this->current_item->set_fee(stod(_input.substr(2)));
+			cout << "DIO: Your account rental fee has been set!" << endl << endl;
+			return;
+		}
+	}
+	cout << "- DIO: WRYYYYY! What you typed is not valid" << endl << endl;
+}
+void Control::access_item()
+{
+	string _input;
+	cout << "- DIO: Choose your item by typing its ID." << endl << endl;
+	while (true) {
+		cout << "1. Show list of all items" << endl;
+		cout << "0. Go back" << endl;
+		cout << "Your Item ID (Ixxx-xxxx): ";
+		_input = take_user_input();
+		if (_input == "exit" || _input == "Exit") { // When the command is to exit
+			exit();
+			return;
+		}
+		if (_input == "1") {
+			this->i_list->display_items();
+			cout << endl;
+			continue;
+		}
+		if (_input == "0") {
+			return;
+		}
+
+		if (!input_is_itemID(_input)) { // Check if input is a number
+			cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
+			continue;
+		}
+		if (!i_list->ID_is_in_list(_input)) {
+			cout << "- DIO: WRYYYYY! An item with an ID like this is not here." << endl << endl;
+			continue;
+		}
+		current_item = i_list->get_by_ID(_input);
+		cout << endl;
+		return;
+	}
+}
+bool Control::input_is_itemID(string input) {
 	if (input.length() != 9) { // Check if input has 4 characters
 		return false;
 	}
@@ -251,77 +447,57 @@ void Control::exit()
 
 void Control::borrow_wizard()
 {
-	bool in_process = true;
-	bool enterID_in_process = true;
-	Account* account = NULL;
-	Item* item = NULL;
-	string input;
+	string _input;
 	cout << "- DIO: Oh! You want to borrow an item?" << endl;
-	cout << "- DIO: Choose your account by typing its ID." << endl << endl;
-	while (in_process) {
-		cout << "1. Show list of all accounts" << endl;
+	cout << "- DIO: Choose your book you want to borrow by typing its ID." << endl << endl;
+	while (true) {
 		cout << "0. Go back" << endl;
-		cout << "Your Account ID (Cxxx): ";
-		cin >> input; // Get input from console
+		cout << "1. Show item list" << endl;
+		cout << "Your want-to-borrow item ID (Ixxx-xxxx): ";
+		cin >> _input; // Get input from console
 		cout << endl;
-		if (input == "exit" || input == "Exit") { // When the command is to exit
+		if (_input == "exit" || _input == "Exit") { // When the command is to exit
 			exit();
 			return;
 		}
-		if (input == "1") {
-			c_list->display_accounts();
+		if (_input == "0") { // Return to previous step
+			cout << endl;
+			return;
+		}
+		if (_input == "1") { // Display list of item
+			i_list->display_items();
+			cout << endl;
 			continue;
 		}
-		if (input == "0") {
-			return;
+		if (!input_is_itemID(_input)) { // Check if input is an item ID
+			cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
+			continue;
 		}
-		if (account == NULL) {
-			if (!input_is_accountID(input)) { // Check if input is a number
-				cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
-				continue;
-			}
-			if (!c_list->ID_is_in_list(input)) {
-				cout << "- DIO: WRYYYYY! An account with an ID like this is not here." << endl << endl;
-				continue;
-			}
-			account = c_list->get_by_ID(input);
-			cout << endl;
-			cout << "- DIO: Choose your book you want to borrow by typing its ID." << endl << endl;
+		if (!i_list->ID_is_in_list(_input)) {
+			cout << "- DIO: WRYYYYY! This item is not in out system." << endl << endl;
+			continue;
 		}
-		while (enterID_in_process) {
-			cout << "0. Go back" << endl;
-			cout << "1. Show item list" << endl;
-			cout << "Your want-to-borrow item ID (Ixxx-xxxx): ";
-			cin >> input; // Get input from console
-			cout << endl;
-			if (input == "exit" || input == "Exit") { // When the command is to exit
-				exit();
-				return;
-			}
-			if (input == "0") {
-				account = NULL;
-				item = NULL;
-				cout << endl;
-				continue;
-			}
-			if (input == "1") {
-				i_list->display_items();
-				cout << endl;
-				continue;
-			}
-			if (!input_is_itemID(input)) { // Check if input is an item ID
-				cout << "- DIO: WRYYYYY! Invalid input." << endl << endl;
-				continue;
-			}
-			if (!i_list->ID_is_in_list(input)) {
-				cout << "- DIO: WRYYYYY! This item is not in out system." << endl << endl;
-				continue;
-			}
-			item = i_list->get_by_ID(input);
-			account->__borrow(item);
-			cout << endl << endl;
-			return;
-		}
+		this->current_item = i_list->get_by_ID(_input);
+		this->current_account->__borrow(this->current_item);
+		this->current_item = NULL;
+		cout << endl << endl;
+		return;
 	}
+}
+
+string Control::take_user_input()
+{
+	string _input;
+	if (current_account != NULL) {
+		cout << '[' << current_account->get_ID() << ']';
+	}
+	if (current_item != NULL) {
+		cout << '[' << current_item->get_ID() << ']';
+	}
+	cout << "Your option: ";
+	cin >> _input; // Take input from console
+	cout << endl;
+	cout << "-----------------------------------------" << endl;
+	return _input;
 }
 
