@@ -226,23 +226,42 @@ void Control::menu() {
 			log_out(current_account);
 			break;
 		}
+		if (current_item != NULL) {
+			log_out(current_item);
+			break;
+		}
+
+		cout << "- DIO: WRYYYYY! Invalid input number!" << endl << endl;
+		break;
 	case 1:
 		if (current_account == NULL && current_item == NULL) {
 			access_account();
+			break;
 		}
 		if (current_account != NULL) {
 			update_account_wizard();
+			break;
 		}
 		if (current_item != NULL) {
 			update_item_wizard();
+			break;
 		}
-		break;
 	case 2:
-		cout << "Under maintainance" << endl << endl;
-		break;
+		if (current_account == NULL && current_item == NULL) {
+			add_account_wizard();
+			break;
+		}
+		if (current_account != NULL) {
+			borrow_wizard();
+			break;
+		}
 	case 3:
 		if (current_account == NULL && current_item == NULL) {
 			access_item();
+			break;
+		}
+		if (current_item != NULL) {
+			add_stock();
 			break;
 		}
 
@@ -251,7 +270,8 @@ void Control::menu() {
 		cout << endl;
 		break;
 	case 5:
-		cout << "maintainace" << endl;
+		i_list->display_OOS();
+		cout << endl;
 		break;
 	case 6:
 		if (current_account == NULL && current_item == NULL) {
@@ -270,6 +290,7 @@ void Control::menu() {
 		cout << "- DIO: WRYYYYY! Invalid input number!" << endl << endl;
 		break;
 	}
+
 }
 
 bool Control::input_is_accountID(string input) {
@@ -416,6 +437,149 @@ void Control::access_item()
 		return;
 	}
 }
+void Control::add_account_wizard()
+{
+	string _input;
+	string name;
+	string phone;
+	string address;
+	string type;
+	string ID;
+	int stage = 1;
+	cout << "DIO: Oh? So you want to add new account?" << endl << endl;
+	while (true) {
+		cout << "0. Go back" << endl;
+		if (stage == 1) {
+			cout << "Enter name" << endl;
+			_input = take_user_input();
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+			}
+			if (_input == "0") {
+				return;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			name = _input;
+			stage += 1;
+		}
+		if (stage == 2) {
+			cout << "Enter phone" << endl;
+			_input = take_user_input();
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+			}
+			if (_input == "0") {
+				stage-=1;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			phone = _input;
+			stage += 1;
+		}
+		if (stage == 3) {
+			cout << "Enter address" << endl;
+			_input = take_user_input();
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+			}
+			if (_input == "0") {
+				stage -= 1;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			address = _input;
+			stage += 1;
+		}
+		if (stage == 4) {
+			cout << "Enter account rank" << endl;
+			_input = take_user_input();
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+			}
+			if (_input == "0") {
+				stage -= 1;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			if (_input == "VIP"|| _input == "REG" || _input == "GUE") {
+				type = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "Wrong account rank code" << endl << endl;;
+		}
+		if (stage == 5) {
+			cout << "Enter account ID" << endl;
+			_input = take_user_input();
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+			}
+			if (_input == "0") {
+				stage -= 1;
+			}
+			if (input_is_accountID(_input)) {
+				if (_input.find(',') != string::npos) {
+					cout << "DIO: No ',' allowed";
+					continue;
+				}
+				if (c_list->ID_is_in_list(_input)) {
+					cout << "DIO: ID is already exist" << endl;
+					continue;
+				}
+				ID = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "Invalid ID" << endl << endl;
+		}
+		if (stage == 6) {
+			if (type == "VIP") {
+				this->c_list->append(new VIPAccount(ID,name, address, phone));
+			}
+			if (type == "REG") {
+				this->c_list->append(new VIPAccount(ID,name, address, phone));
+			}
+			if (type == "GUE") {
+				this->c_list->append(new VIPAccount(ID,name, address, phone));
+			}
+			cout << "DIO: New account created!" << endl << endl;
+			return;
+		}
+
+	}
+}
+void Control::add_stock()
+{
+	string _input;
+	cout << " - DIO: Oh? You want to add more copies?" << endl;
+	cout << " Enter you number of new copies." << endl << endl;
+	while (true) { // get user input as a num
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "exit" || _input == "Exit") {
+			exit();
+			return;
+		}
+		if (_input == "0") {
+			return;
+		}
+		if (input_is_number(_input)) {
+			this->current_item->add_copies(stoi(_input));
+			cout << "DIO: WRYYYY! Stock added" << endl << endl;
+			return;
+		}
+		cout << "What you enterer is not a whole number" << endl << endl;
+	}
+}
 bool Control::input_is_itemID(string input) {
 	if (input.length() != 9) { // Check if input has 4 characters
 		return false;
@@ -449,7 +613,7 @@ void Control::borrow_wizard()
 {
 	string _input;
 	cout << "- DIO: Oh! You want to borrow an item?" << endl;
-	cout << "- DIO: Choose your book you want to borrow by typing its ID." << endl << endl;
+	cout << "- DIO: Choose your item you want to borrow by typing its ID." << endl << endl;
 	while (true) {
 		cout << "0. Go back" << endl;
 		cout << "1. Show item list" << endl;

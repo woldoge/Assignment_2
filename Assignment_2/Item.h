@@ -31,8 +31,10 @@ public:
 	// handling functions
 	bool borrow(int num);
 	void update_status();
+	void add_copies(int num);
 	// virtual functions
 	virtual void display();
+	string get_loan_status() { return this->loan_status; }
 };
 
 class Record :public Item {

@@ -128,3 +128,15 @@ int LinkedItems::items_num()
 	}
 	return num;
 }
+
+void LinkedItems::display_OOS()
+{
+	item_node* current_Ptr = this->head;
+	while (current_Ptr != NULL) {
+		if (current_Ptr->getData()->get_loan_status() == "borrowed")
+		{
+			current_Ptr->getData()->display();
+		}
+		current_Ptr = current_Ptr->getNext();
+	}
+}

@@ -34,5 +34,8 @@ public:
 	void update_account_wizard();
 	void update_item_wizard();
 	void access_item();
+	void add_account_wizard();
+	void add_stock();
+
 
 };

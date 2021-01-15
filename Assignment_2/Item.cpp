@@ -27,6 +27,11 @@ void Item::update_status()
 	}
 }
 
+void Item::add_copies(int num)
+{
+	this->available_copies += num;
+}
+
 void Item::display()
 {
 	cout << "ID: " << this->ID << " | Title: " << this->title << endl;
