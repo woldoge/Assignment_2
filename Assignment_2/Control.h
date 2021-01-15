@@ -36,6 +36,10 @@ public:
 	void access_item();
 	void add_account_wizard();
 	void add_stock();
+	void delete_item();
+	void display_group_of_customer();
+	void promote_account();
+	void return_item();
 
 
 };

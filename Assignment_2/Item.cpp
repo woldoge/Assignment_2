@@ -49,6 +49,7 @@ Record::Record(string ID, string title, string loan_type, int copies, double fee
 	this->available_copies = copies;
 	this->fee = fee;
 	this->genre = genre;
+	this->type = "record";
 	update_status();
 }
 
@@ -65,6 +66,7 @@ DVD::DVD(string ID, string title, string loan_type, int copies, double fee, stri
 	this->available_copies = copies;
 	this->fee = fee;
 	this->genre = genre;
+	this->type = "DVD";
 	update_status();
 }
 
@@ -80,5 +82,6 @@ Game::Game(string ID, string title, string loan_type, int copies, double fee) {
 	this->loan_type = loan_type;
 	this->available_copies = copies;
 	this->fee = fee;
+	this->type = "game";
 	update_status();
 }

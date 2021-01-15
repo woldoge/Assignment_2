@@ -35,4 +35,5 @@ public:
 	bool ID_is_in_list(string ID);
 	int items_num();
 	void display_OOS();
+	void delete_by_ID(string ID);
 };

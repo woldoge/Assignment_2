@@ -33,5 +33,7 @@ public:
 	Account* get_by_ID(string ID);
 	void print_IDs();
 	void display_accounts();
+	void display_accounts(string rank);
 	bool ID_is_in_list(string ID);
+	void change_account(Account* old_account, Account* new_account);
 };

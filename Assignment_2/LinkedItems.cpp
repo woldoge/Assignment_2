@@ -35,27 +35,22 @@ void LinkedItems::removeHead()
 
 void LinkedItems::removeNode(Item* data)
 {
+	item_node *prevPtr = NULL;
 	item_node *currentPtr = this->head;
 	if (currentPtr->getData() == data) // If data matched at the head
 		this->removeHead();
 	else
 	{
-		while ((currentPtr->getNext()->getData() != data) && (currentPtr->getNext()->getNext() != NULL)) { // Loop through the datas until get to the matched data or the tail
+		while (currentPtr != NULL) {
+			if (currentPtr->getData() == data) {
+				prevPtr->setNext(currentPtr->getNext());
+				delete currentPtr;
+				return;
+			}
+			prevPtr = currentPtr;
 			currentPtr = currentPtr->getNext();
 		}
-		if (currentPtr->getNext()->getData() != data) // When the tail data is not matched
-			cout << "Account not found" << endl;
-		else
-		{
-			if (currentPtr->getNext()->getNext() == NULL) // When the next node is not tail
-				this->removeNode(currentPtr->getData());
-			else // When the next node is tail
-			{
-				item_node *tempPtr = currentPtr->getNext();
-				currentPtr->setNext(tempPtr->getNext());
-				delete tempPtr;
-			}
-		}
+		cout << "Cannot find the item in the list" << endl << endl;
 	}
 }
 
@@ -131,12 +126,38 @@ int LinkedItems::items_num()
 
 void LinkedItems::display_OOS()
 {
+	bool no_item = true;
 	item_node* current_Ptr = this->head;
 	while (current_Ptr != NULL) {
 		if (current_Ptr->getData()->get_loan_status() == "borrowed")
 		{
+			no_item = false;
 			current_Ptr->getData()->display();
 		}
 		current_Ptr = current_Ptr->getNext();
+	}
+	if (no_item) {
+		cout << "- DIO: Yare yare daze! Everything is available." << endl << endl;
+	}
+}
+
+void LinkedItems::delete_by_ID(string ID)
+{
+	item_node *prevPtr = NULL;
+	item_node *currentPtr = this->head;
+	if (currentPtr->getData()->get_ID() == ID) // If data matched at the head
+		this->removeHead();
+	else
+	{
+		while (currentPtr != NULL) {
+			if (currentPtr->getData()->get_ID() == ID) {
+				prevPtr->setNext(currentPtr->getNext());
+				delete currentPtr;
+				return;
+			}
+			prevPtr = currentPtr;
+			currentPtr = currentPtr->getNext();
+		}
+		cout << "Cannot find the item in the list" << endl << endl;
 	}
 }

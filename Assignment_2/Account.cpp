@@ -9,6 +9,7 @@ VIPAccount::VIPAccount(string ID, string name, string address, string phone) {
 	this->name = name;
 	this->address = address;
 	this->phone = phone;
+	this->customer_type = "VIP";
 }
 void VIPAccount::__borrow(Item* item) {
 	if (item->borrow(1)) { // If there are enough cpoies to borrow
@@ -37,6 +38,7 @@ RegularAccount::RegularAccount(string ID, string name, string address, string ph
 	this->name = name;
 	this->address = address;
 	this->phone = phone;
+	this->customer_type = "regular";
 }
 void RegularAccount::__borrow(Item* item) {
 	Account::__borrow(item);
@@ -54,6 +56,7 @@ GuestAccount::GuestAccount(string ID, string name, string address, string phone)
 	this->name = name;
 	this->address = address;
 	this->phone = phone;
+	this->customer_type = "guess";
 }
 void GuestAccount::__borrow(Item* item) {
 	if (this->rental_list->items_num() >= this->max_rent) {
@@ -94,6 +97,7 @@ void Account::__borrow(Item * item)
 	if (item->borrow(1)) { // If there are enough cpoies to borrow
 		this->rental_list->append(new Item(item->get_ID())); // Append a copy to rental list
 		this->rental_num = rental_list->items_num();
+		this->promote_point += 1;
 		cout << "DIO: Item is successfully borrowed." << endl;
 	}
 	else { // If fail to borrow
@@ -101,14 +105,14 @@ void Account::__borrow(Item * item)
 	}
 }
 
-void Account::__return(Item * item)
+void Account::return_item(Item * item)
 {
-	cout << "__return: under maintainance" << endl; //////////////////////////@@@@@@@@@@@@@@@@@@@@@@@@
 	if (this->rental_list->ID_is_in_list(item->get_ID())) { // Check if there is this copy in the account
+		this->rental_list->delete_by_ID(item->get_ID());
 		this->rental_num = rental_list->items_num();
-		cout << "- DIO: Returned this item";
+		item->add_copies(1);
 	}
 	else {
-		cout << "- DIO: This account does not have this item";
+		cout << "- DIO: This account does not have this item" << endl;
 	}
 }

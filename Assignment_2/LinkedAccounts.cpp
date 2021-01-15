@@ -102,7 +102,18 @@ void LinkedAccounts::display_accounts()
 	}
 	cout << "(*) [VIP]: VIP account" << endl;
 	cout << "    [REG]: Regular account" << endl;
-	cout << "    [GUE]: Guess account" << endl;
+	cout << "    [GUE]: Guess account" << endl << endl;
+}
+
+void LinkedAccounts::display_accounts(string rank) {
+	account_node* currentPtr = this->head;
+	while (currentPtr != NULL) {
+		if (currentPtr->getData()->get_rank() == rank) {
+			currentPtr->getData()->display();
+			cout << endl << endl;
+		}
+		currentPtr = currentPtr->getNext();
+	}
 }
 
 bool LinkedAccounts::ID_is_in_list(string ID)
@@ -115,4 +126,23 @@ bool LinkedAccounts::ID_is_in_list(string ID)
 		currentPtr = currentPtr->getNext();
 	}
 	return false;
+}
+
+void LinkedAccounts::change_account(Account * old_account, Account * new_account)
+{
+	account_node* currentPtr = this->head;
+	while (currentPtr != NULL) {
+		if (currentPtr->getData() == old_account) {
+			new_account->set_ID(old_account->get_ID());
+			new_account->set_name(old_account->get_name());
+			new_account->set_address(old_account->get_address());
+			new_account->set_phone(old_account->get_phone());
+			new_account->set_rental_num(old_account->get_rental_num());
+			new_account->set_rental_list(old_account->get_rental_list());
+			delete currentPtr->getData();
+			currentPtr->setData(new_account);
+			return;
+		}
+	}
+	cout << "ERROR: Can not find this account in list." << endl;
 }

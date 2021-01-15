@@ -255,9 +255,17 @@ void Control::menu() {
 			borrow_wizard();
 			break;
 		}
+		if (current_item != NULL) {
+			delete_item();
+			break;
+		}
 	case 3:
 		if (current_account == NULL && current_item == NULL) {
 			access_item();
+			break;
+		}
+		if (current_account != NULL) {
+			return_item();
 			break;
 		}
 		if (current_item != NULL) {
@@ -278,14 +286,20 @@ void Control::menu() {
 			this->c_list->display_accounts();
 			break;
 		}
-		cout << "maintainace" << endl;
-		break;
+		if (current_account != NULL) {
+			this->promote_account();
+			break;
+		}
 	case 7:
-		cout << "Under maintainance" << endl << endl;
-		break;
+		if (current_account == NULL && current_item == NULL) {
+			this->display_group_of_customer();
+			break;
+		}
 	case 8:
-		cout << "Maintainance" << endl << endl;
-		break;
+		if (current_account == NULL && current_item == NULL) {
+			cout << "Maintainace" << endl;
+			break;
+		}
 	default:
 		cout << "- DIO: WRYYYYY! Invalid input number!" << endl << endl;
 		break;
@@ -395,9 +409,12 @@ void Control::update_item_wizard()
 			}
 		}
 		if (_input.length() > 2 && _input[0] == '3' &&_input[1] == '-') { // 1. set rental fee
-			this->current_item->set_fee(stod(_input.substr(2)));
-			cout << "DIO: Your account rental fee has been set!" << endl << endl;
-			return;
+			if (input_is_number(_input)) {
+				this->current_item->set_fee(stod(_input.substr(2)));
+				cout << "DIO: Your account rental fee has been set!" << endl << endl;
+				return;
+			}
+			cout << "Input is not a number." << endl << endl;
 		}
 	}
 	cout << "- DIO: WRYYYYY! What you typed is not valid" << endl << endl;
@@ -578,6 +595,102 @@ void Control::add_stock()
 			return;
 		}
 		cout << "What you enterer is not a whole number" << endl << endl;
+	}
+}
+void Control::delete_item()
+{
+	i_list->removeNode(this->current_item);
+	this->current_item = NULL;
+	cout << "ROAD ROLLER DA! Your item is deleted" << endl << endl;
+}
+void Control::display_group_of_customer()
+{
+	string _input;
+	while (true) {
+		cout << "- DIO: What type of accounts you want to show? VIP, regular or guess?" << endl;
+		cout << "0. Go back" << endl;
+		cout << "1. Guess accounts" << endl;
+		cout << "2. VIP accounts" << endl;
+		cout << "3. Regular accounts" << endl;
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "exit" || _input == "Exit") {
+			exit();
+			return;
+		}
+		if (_input == "0") {
+			return;
+		}
+		if (_input == "1") {
+			this->c_list->display_accounts("guess");
+			continue;
+		}
+		if (_input == "2") {
+			this->c_list->display_accounts("VIP");
+			continue;
+		}
+		if (_input == "3") {
+			this->c_list->display_accounts("regular");
+			continue;
+		}
+		cout << "- DIO: Invalid input!" << endl << endl;
+	}
+}
+void Control::promote_account()
+{
+	if (this->current_account->get_rank() == "VIP") {
+		cout << "- DIO: You are currently at the highest rank!" << endl << endl;
+		return;
+	}
+	Account* new_account;;
+	if (this->current_account->get_rank() == "regular"|| current_account->get_rank() == "guess") {
+		if (current_account->get_rank() == "regular") {
+			new_account = new VIPAccount();
+		}
+
+		else{
+			new_account = new RegularAccount();
+		}
+		c_list->change_account(current_account, new_account);
+	}
+}
+void Control::return_item()
+{
+	cout << "Oh? So you want yo return an item?" << endl;
+	cout << "0. Go back" << endl;
+	cout << "1. Show your current list of borrowed item;" << endl;
+	cout << "Enter your item ID you want to return (Ixxx-xxxx)" << endl;
+	cout << "For example: I009-2077" << endl;
+	string _input;
+	while (true)
+	{
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "exit" || _input == "Exit") {
+			exit();
+			return;
+		}
+		if (_input == "0") {
+			return;
+		}
+		if (_input == "1") {
+			this->current_account->display();
+			continue;
+		}
+		if (input_is_itemID(_input)){
+			if (this->current_account->get_rental_list()->ID_is_in_list(_input)) {
+				Item* item = i_list->get_by_ID(_input);
+				this->current_account->return_item(item);
+				cout << "Successfully returned" << endl << endl;
+				return;
+			}
+			else {
+				cout << "Yare yare daze, you have not borrowed this item, yet" << endl << endl;
+			}
+			continue;
+		}
+		cout << "Invalid input!" << endl << endl;
+		
 	}
 }
 bool Control::input_is_itemID(string input) {

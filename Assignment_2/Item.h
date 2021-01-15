@@ -8,6 +8,7 @@ protected:
 	string ID;
 	string title;
 	string loan_type;
+	string type = "item";
 	int available_copies = 0;
 	double fee;
 	string loan_status;
@@ -21,6 +22,7 @@ public:
 	string get_loan_type() { return this->loan_type; }
 	int get_copies() { return this->available_copies; }
 	double get_fee() { return this->fee; }
+	string get_type() { return this->type; }
 	// setors
 	void set_ID(string ID) { this->ID = ID; }
 	void set_title(string title) { this->title = title; }
