@@ -36,4 +36,7 @@ public:
 	int items_num();
 	void display_OOS();
 	void delete_by_ID(string ID);
+	bool display_has_string(string text);
+	bool ID_number_is_in_list(string text);
+	void write_file(ofstream *file);
 };

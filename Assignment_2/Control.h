@@ -40,6 +40,10 @@ public:
 	void display_group_of_customer();
 	void promote_account();
 	void return_item();
+	void search_account();
+	void search_item();
+	void add_item_wizard();
+	bool is_double(string text);
 
 
 };

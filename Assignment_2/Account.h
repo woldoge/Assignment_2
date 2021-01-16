@@ -70,7 +70,7 @@ class GuestAccount :public Account {
 private:
 	const int max_rent = 2;
 public:
-	GuestAccount() { this->customer_type = "guess"; }
+	GuestAccount() { this->customer_type = "guest"; }
 	GuestAccount(string ID, string name, string address, string phone);
 	~GuestAccount() {}
 	void __borrow(Item* item);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "LinkedAccounts.h"
+#include <fstream>
 
 using namespace std;
 
@@ -102,7 +103,7 @@ void LinkedAccounts::display_accounts()
 	}
 	cout << "(*) [VIP]: VIP account" << endl;
 	cout << "    [REG]: Regular account" << endl;
-	cout << "    [GUE]: Guess account" << endl << endl;
+	cout << "    [GUE]: Guest account" << endl << endl;
 }
 
 void LinkedAccounts::display_accounts(string rank) {
@@ -133,16 +134,68 @@ void LinkedAccounts::change_account(Account * old_account, Account * new_account
 	account_node* currentPtr = this->head;
 	while (currentPtr != NULL) {
 		if (currentPtr->getData() == old_account) {
-			new_account->set_ID(old_account->get_ID());
-			new_account->set_name(old_account->get_name());
-			new_account->set_address(old_account->get_address());
-			new_account->set_phone(old_account->get_phone());
-			new_account->set_rental_num(old_account->get_rental_num());
-			new_account->set_rental_list(old_account->get_rental_list());
+			new_account->set_ID(currentPtr->getData()->get_ID());
+			new_account->set_name(currentPtr->getData()->get_name());
+			new_account->set_address(currentPtr->getData()->get_address());
+			new_account->set_phone(currentPtr->getData()->get_phone());
+			new_account->set_rental_num(currentPtr->getData()->get_rental_num());
+			new_account->set_rental_list(currentPtr->getData()->get_rental_list());
 			delete currentPtr->getData();
 			currentPtr->setData(new_account);
 			return;
 		}
+		currentPtr = currentPtr->getNext();
 	}
 	cout << "ERROR: Can not find this account in list." << endl;
+}
+
+bool LinkedAccounts::display_has_string(string text)
+{
+	bool found = false;
+	account_node* current_pointer = this->head;
+	while (current_pointer != NULL) {
+		if (current_pointer->getData()->get_ID().find(text) != string::npos || current_pointer->getData()->get_name().find(text) != string::npos) {
+			found = true;
+			current_pointer->getData()->display();
+			cout << endl;
+		}
+		current_pointer = current_pointer->getNext();
+	}
+	return found;
+}
+
+void LinkedAccounts::write_file(ofstream* my_file_)
+{
+	account_node* current_pointer = this->head;
+	string rank;
+	while (current_pointer != NULL) {
+		*my_file_ << current_pointer->getData()->get_ID();
+		*my_file_ << ',';
+		*my_file_ << current_pointer->getData()->get_name();
+		*my_file_ << ',';
+		*my_file_ << current_pointer->getData()->get_address();
+		*my_file_ << ',';
+		*my_file_ << current_pointer->getData()->get_phone();
+		*my_file_ << ',';
+		*my_file_ << current_pointer->getData()->get_rental_num();
+		*my_file_ << ',';
+		rank = current_pointer->getData()->get_rank();
+		rank[0] = toupper(rank[0]);
+		*my_file_ << rank;
+		*my_file_ << "\n";
+		current_pointer->getData()->get_rental_list()->write_file(my_file_);
+		current_pointer = current_pointer->getNext();
+	}
+}
+
+bool LinkedAccounts::item_ID_in_c_list(string ID)
+{
+	account_node* current_account = this->head;
+	while (current_account != NULL) {
+		if (current_account->getData()->get_rental_list()->ID_is_in_list(ID)) {
+			return true;
+		}
+		current_account = current_account->getNext();
+	}
+	return false;
 }

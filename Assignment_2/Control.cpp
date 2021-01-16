@@ -184,7 +184,9 @@ void Control::menu() {
 		cout << "5. Display out - of - stock items" << endl;
 		cout << "6. Display all customers" << endl;
 		cout << "7. Display group of customers" << endl;
-		cout << "8. Add a new item" << endl;
+		cout << "8. Search account" << endl;
+		cout << "9. Search item" << endl;
+		cout << "10.Add a new item" << endl;
 	}
 	if (current_account != NULL) {
 		cout << "0. Log out this acount" << endl;
@@ -297,7 +299,17 @@ void Control::menu() {
 		}
 	case 8:
 		if (current_account == NULL && current_item == NULL) {
-			cout << "Maintainace" << endl;
+			search_account();
+			break;
+		}
+	case 9:
+		if (current_account == NULL && current_item == NULL) {
+			search_item();
+			break;
+		}
+	case 10:
+		if (current_account == NULL && current_item == NULL) {
+			add_item_wizard();
 			break;
 		}
 	default:
@@ -409,7 +421,7 @@ void Control::update_item_wizard()
 			}
 		}
 		if (_input.length() > 2 && _input[0] == '3' &&_input[1] == '-') { // 1. set rental fee
-			if (input_is_number(_input)) {
+			if (is_double(_input)) {
 				this->current_item->set_fee(stod(_input.substr(2)));
 				cout << "DIO: Your account rental fee has been set!" << endl << endl;
 				return;
@@ -471,6 +483,7 @@ void Control::add_account_wizard()
 			_input = take_user_input();
 			if (_input == "exit" || _input == "Exit") {
 				exit();
+				return;
 			}
 			if (_input == "0") {
 				return;
@@ -487,6 +500,7 @@ void Control::add_account_wizard()
 			_input = take_user_input();
 			if (_input == "exit" || _input == "Exit") {
 				exit();
+				return;
 			}
 			if (_input == "0") {
 				stage-=1;
@@ -503,6 +517,7 @@ void Control::add_account_wizard()
 			_input = take_user_input();
 			if (_input == "exit" || _input == "Exit") {
 				exit();
+				return;
 			}
 			if (_input == "0") {
 				stage -= 1;
@@ -515,10 +530,11 @@ void Control::add_account_wizard()
 			stage += 1;
 		}
 		if (stage == 4) {
-			cout << "Enter account rank" << endl;
+			cout << "Enter account rank code (VIP, GUE or REG)" << endl;
 			_input = take_user_input();
 			if (_input == "exit" || _input == "Exit") {
 				exit();
+				return;
 			}
 			if (_input == "0") {
 				stage -= 1;
@@ -535,10 +551,11 @@ void Control::add_account_wizard()
 			cout << "Wrong account rank code" << endl << endl;;
 		}
 		if (stage == 5) {
-			cout << "Enter account ID" << endl;
+			cout << "Enter account ID (Cxxx)" << endl;
 			_input = take_user_input();
 			if (_input == "exit" || _input == "Exit") {
 				exit();
+				return;
 			}
 			if (_input == "0") {
 				stage -= 1;
@@ -568,7 +585,7 @@ void Control::add_account_wizard()
 			if (type == "GUE") {
 				this->c_list->append(new VIPAccount(ID,name, address, phone));
 			}
-			cout << "DIO: New account created!" << endl << endl;
+			cout << "DIO: New account " <<'[' << type << ']' << ' ' << ID << ' ' << name << " created!" << endl << endl;
 			return;
 		}
 
@@ -599,17 +616,21 @@ void Control::add_stock()
 }
 void Control::delete_item()
 {
+	if (c_list->item_ID_in_c_list(current_item->get_ID())) {
+		cout << "Yare yare daze! This item is being borrowed by someone. Can not be deleted." << endl << endl;
+		return;
+	}
 	i_list->removeNode(this->current_item);
 	this->current_item = NULL;
-	cout << "ROAD ROLLER DA! Your item is deleted" << endl << endl;
+	cout << "-DIO: ROAD ROLLER DA! Your item is deleted" << endl << endl;
 }
 void Control::display_group_of_customer()
 {
 	string _input;
 	while (true) {
-		cout << "- DIO: What type of accounts you want to show? VIP, regular or guess?" << endl;
+		cout << "- DIO: What type of accounts you want to show? VIP, regular or guest?" << endl;
 		cout << "0. Go back" << endl;
-		cout << "1. Guess accounts" << endl;
+		cout << "1. Guest accounts" << endl;
 		cout << "2. VIP accounts" << endl;
 		cout << "3. Regular accounts" << endl;
 		_input = take_user_input();
@@ -622,7 +643,7 @@ void Control::display_group_of_customer()
 			return;
 		}
 		if (_input == "1") {
-			this->c_list->display_accounts("guess");
+			this->c_list->display_accounts("guest");
 			continue;
 		}
 		if (_input == "2") {
@@ -642,8 +663,12 @@ void Control::promote_account()
 		cout << "- DIO: You are currently at the highest rank!" << endl << endl;
 		return;
 	}
+	if (current_account->get_promote_point() <= 3) {
+		cout << " - DIO: Yare yare daze, you have not returned enough item" << endl <<endl;
+		return;
+	}
 	Account* new_account;;
-	if (this->current_account->get_rank() == "regular"|| current_account->get_rank() == "guess") {
+	if (this->current_account->get_rank() == "regular"|| current_account->get_rank() == "guest") {
 		if (current_account->get_rank() == "regular") {
 			new_account = new VIPAccount();
 		}
@@ -652,6 +677,7 @@ void Control::promote_account()
 			new_account = new RegularAccount();
 		}
 		c_list->change_account(current_account, new_account);
+		current_account = new_account;
 	}
 }
 void Control::return_item()
@@ -693,6 +719,247 @@ void Control::return_item()
 		
 	}
 }
+void Control::search_account()
+{
+	bool found;
+	string _input;
+	cout << "DIO: Oh? So you want to search account?" << endl;
+	cout << "What is your keyword? (this will search by ID and name)" << endl << endl;
+	while (true) {
+		cout << "0. Go back" << endl;
+		cout << "Exit. Save and exit the program" << endl;
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "Exit" || _input == "exit") {
+			exit();
+			return;
+		}
+		if (_input == "0") {
+			return;
+		}
+		found = c_list->display_has_string(_input);
+		if (!found) {
+			cout << "Yare yare! Not a single soul was found" << endl << endl;
+		}
+	}
+}
+void Control::search_item()
+{
+	bool found;
+	string _input;
+	cout << "DIO: Oh? So you want to search item?" << endl;
+	cout << "What is your keyword? (this will search by ID and title)" << endl << endl;
+	while (true) {
+		cout << "0. Go back" << endl;
+		cout << "Exit. Save and exit the program" << endl;
+		_input = take_user_input();
+		cout << endl;
+		if (_input == "Exit" || _input == "exit") {
+			exit();
+			return;
+		}
+		if (_input == "0") {
+			return;
+		}
+		found = i_list->display_has_string(_input);
+		if (!found) {
+			cout << "Yare yare! Not a single thing was found" << endl << endl;
+		}
+	}
+}
+void Control::add_item_wizard()
+{
+	string _input;
+	string title;
+	double fee;
+	string rental_type;
+	string type;
+	string ID;
+	string genre;
+	int stage = 1;
+	cout << "DIO: Oh? So you want to add a new item?" << endl << endl;
+	while (true) {
+		cout << "0. Go back" << endl;
+		if (stage == 1) {
+			cout << "Enter title" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				return;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			title = _input;
+			stage += 1;
+		}
+		if (stage == 2) {
+			cout << "Enter rental_type (only '2-day' and '1-week' are allowed)" << endl;
+			cout << "0. Go back" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				stage -= 1;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			if (_input == "2-day" || _input == "1-week") {
+				rental_type = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "Must be '2-day' or '1-week'" << endl;
+			continue;
+		}
+		if (stage == 3) {
+			cout << "Enter fee (number)" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				stage -= 1;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			if (!is_double(_input)) {
+				cout << "Input is not number" << endl;
+				continue;
+			}
+			fee = stod(_input);
+			stage += 1;
+		}
+		if (stage == 4) {
+			cout << "Enter item type (DVD, game or record)" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				stage -= 1;
+				continue;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			if (_input == "DVD" || _input == "game" || _input == "record") {
+				type = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "This is not a valid type" << endl << endl;
+		}
+		if (stage == 5) {
+			cout << "Enter item ID (Ixxx-xxxx) (Ixxx must not have existed)" << endl;
+			cout << "For example: I008-1989" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				stage -= 1;
+				continue;
+			}
+			if (input_is_itemID(_input)) {
+				if (_input.find(',') != string::npos) {
+					cout << "DIO: No ',' allowed";
+					continue;
+				}
+				if (i_list->ID_number_is_in_list(_input.substr(0,4))) {
+					cout << "DIO: ID is already exist" << endl << endl;
+					continue;
+				}
+				ID = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "Invalid ID" << endl << endl;
+		}
+		if (stage == 6) {
+			if (type == "game") {
+				stage += 1;
+				continue;
+			}
+			cout << "Enter genre(Horror, Action or Comedy)" << endl;
+			_input = take_user_input();
+			cout << endl;
+			if (_input == "exit" || _input == "Exit") {
+				exit();
+				return;
+			}
+			if (_input == "0") {
+				stage -= 1;
+				continue;
+			}
+			if (_input.find(',') != string::npos) {
+				cout << "DIO: No ',' allowed";
+				continue;
+			}
+			if (_input == "Horror" || _input == "Action" || _input == "Comedy") {
+				genre = _input;
+				stage += 1;
+				continue;
+			}
+			cout << "This is not a valid type" << endl << endl;
+		}
+		if (stage == 7) {
+			if (type == "game") {
+				this->i_list->append(new Game(ID, title,rental_type,0,fee));
+			}
+			if (type == "DVD") {
+				this->i_list->append(new DVD(ID, title, rental_type, 0, fee, genre));
+			}
+			if (type == "record") {
+				this->i_list->append(new Record(ID, title, rental_type, 0, fee,genre));
+			}
+			cout << "DIO: New item "<< title << " created!" << endl << endl;
+			return;
+		}
+
+	}
+}
+bool Control::is_double(string input)
+{
+	bool dot_is_present = false;
+	if (input[0] == '.') {
+		return false;
+	}
+	for (int i = 0; i <= input.length(); i++) {
+		if (input[i] == '.') {
+			if (dot_is_present == false) {
+				dot_is_present = true;
+				continue;
+			}
+			if (dot_is_present) {
+				return false;
+			}
+		}
+		if (!input_is_number(input)) {
+			return false;
+		}
+	}
+	return true;
+}
 bool Control::input_is_itemID(string input) {
 	if (input.length() != 9) { // Check if input has 4 characters
 		return false;
@@ -715,11 +982,40 @@ bool Control::input_is_itemID(string input) {
 void Control::exit()
 {
 	this->is_running = false;
+	// Write to file
+	string c_file_out = this->customers_file;
+	string i_file_out = this->items_file;
+	ofstream c_file_;
+	ofstream i_file_;
+	ofstream* c_file = &c_file_;
+	ofstream* i_file = &i_file_;
+	c_file->open(c_file_out);
+	i_file->open(i_file_out);
+	if (!*c_file || !*i_file) {
+		cout << "System: Cannot open file" << endl;
+		return;
+	}
+	c_list->write_file(c_file);
+	i_list->write_file(i_file);
+	//Close file
+	c_file->close();
+	i_file->close();
+
 	// Dealocate
 	this->c_list->deleteList();
 	this->i_list->deleteList();
+	delete c_list;
+	delete i_list;
+	cout << endl;
 	cout << "*************************************" << endl;
 	cout << "- DIO: ZA WARUDO! Your data is saved!" << endl;
+	cout << "*************************************" << endl << endl;
+	cout << "ASSIGNMENT 2 GROUP25" << endl;
+	cout << "s3537287, s3537287@rmit.edu.vn, Cuong, Vu" << endl;
+	cout << "s3817693, s3817693@rmit.edu.vn, Tan, Vo" << endl;
+	cout << "s3794510, s3794510@rmit.edu.vn, Tung, Ngo" << endl;
+	cout << "s3790029, s3790029@rmit.edu.vn, Cat, Le" << endl;
+	cout << "s3594192, s3594192@rmit.edu.vn, Nam, Hoang" << endl;
 }
 
 void Control::borrow_wizard()

@@ -29,21 +29,22 @@ public:
 	void set_loan_type(string loan_type) { this->loan_type= loan_type; }
 	void set_copies(int copies) { this->available_copies = copies; update_status(); }
 	void set_fee(double fee) { this->fee = fee; }
-	virtual void set_genre(string genre) {}
 	// handling functions
 	bool borrow(int num);
 	void update_status();
 	void add_copies(int num);
+	string get_loan_status() { return this->loan_status; }
 	// virtual functions
 	virtual void display();
-	string get_loan_status() { return this->loan_status; }
+	virtual void set_genre(string genre) {}
+	virtual string get_genre() { return ""; }
 };
 
 class Record :public Item {
 private:
 	string genre;
 public:
-	Record() {}
+	Record() { this->type = "record"; }
 	Record(string ID, string title, string loan_type, int copies, double fee, string genre);
 	~Record() {}
 	// getors
@@ -58,7 +59,7 @@ class DVD :public Item {
 private:
 	string genre;
 public:
-	DVD(){}
+	DVD() { this->type = "DVD"; }
 	DVD(string ID, string title, string loan_type, int copies, double fee, string genre);
 	~DVD() {}
 	// getors
@@ -70,7 +71,7 @@ public:
 
 class Game :public Item {
 public:
-	Game(){}
+	Game() { this->type = "Game"; }
 	Game(string ID, string title, string loan_type, int copies, double fee);
 	~Game() {}
 };

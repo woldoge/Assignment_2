@@ -36,4 +36,7 @@ public:
 	void display_accounts(string rank);
 	bool ID_is_in_list(string ID);
 	void change_account(Account* old_account, Account* new_account);
+	bool display_has_string(string text);
+	void write_file(ofstream* my_file_);
+	bool item_ID_in_c_list(string ID);
 };

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "LinkedItems.h"
-
+#include <fstream>
 using namespace std;
 
 void LinkedItems::append(Item* data)
@@ -101,6 +101,7 @@ void LinkedItems::display_items()
 	return;
 }
 
+
 bool LinkedItems::ID_is_in_list(string ID)
 {
 	item_node* current_Ptr = this->head;
@@ -160,4 +161,63 @@ void LinkedItems::delete_by_ID(string ID)
 		}
 		cout << "Cannot find the item in the list" << endl << endl;
 	}
+}
+
+bool LinkedItems::display_has_string(string text)
+{
+	bool found = false;
+	item_node* current_pointer = this->head;
+	while (current_pointer != NULL) {
+		if (current_pointer->getData()->get_ID().find(text) != string::npos || current_pointer->getData()->get_title().find(text) != string::npos) {
+			found = true;
+			current_pointer->getData()->display();
+			cout << endl;
+		}
+		current_pointer = current_pointer->getNext();
+	}
+	return found;
+}
+
+bool LinkedItems::ID_number_is_in_list(string text)
+{
+	{
+		item_node* current_Ptr = this->head;
+		while (current_Ptr != NULL) {
+			if (current_Ptr->getData()->get_ID().find(text) != string::npos) {
+				return true;
+			}
+			current_Ptr = current_Ptr->getNext();
+		}
+		return false;
+	}
+}
+
+void LinkedItems::write_file(ofstream* my_file_)
+{
+	item_node* current_pointer = this->head;
+	string type;
+	while (current_pointer != NULL) {
+		*my_file_ << current_pointer->getData()->get_ID();
+		if (current_pointer->getData()->get_type() != "item") {
+			*my_file_ << ',';
+			*my_file_ << current_pointer->getData()->get_title();
+			*my_file_ << ',';
+			type = current_pointer->getData()->get_type();
+			type[0] = toupper(type[0]);
+			*my_file_ << type;
+			*my_file_ << ',';
+			*my_file_ << current_pointer->getData()->get_loan_type();
+			*my_file_ << ',';
+			*my_file_ << current_pointer->getData()->get_copies();
+			*my_file_ << ',';
+			*my_file_ << current_pointer->getData()->get_fee();
+			if (type != "Game") {
+				*my_file_ << ',';
+				*my_file_ << current_pointer->getData()->get_genre();
+			}
+		}
+		*my_file_ << "\n";
+		current_pointer = current_pointer->getNext();
+	}
+	
 }
